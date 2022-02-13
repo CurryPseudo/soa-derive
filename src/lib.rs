@@ -232,11 +232,6 @@ pub trait StructOfArray {
     type Type;
 }
 
-pub trait SoAIter<'a> {
-    type Iter: 'a;
-    type IterMut: 'a;
-}
-
 mod private_soa_indexes {
     // From [`std::slice::SliceIndex`](https://doc.rust-lang.org/std/slice/trait.SliceIndex.html) code.
     // Limits the types that may implement the SoA index traits.

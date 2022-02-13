@@ -250,6 +250,11 @@ impl Input {
     pub fn ptr_mut_name(name: &impl ToTokens) -> Ident {
         Ident::new(&format!("{}PtrMut", name.to_token_stream()), Span::call_site())
     }
+
+    pub fn detail_mod_name(name: &impl ToTokens) -> Ident {
+        Ident::new(&format!("__detail_iter_{}", name.to_token_stream().to_string().to_lowercase()), Span::call_site())
+    }
+
     pub fn iter_fields(&self) -> impl Iterator<Item = (&Ident, &Type, bool)> {
         self.fields.iter().zip(self.field_is_nested.iter()).map(|(field, is_nested)| {
             (field.ident.as_ref().unwrap(), &field.ty, *is_nested)

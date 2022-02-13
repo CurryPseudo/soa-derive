@@ -1,6 +1,6 @@
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::{TokenStream};
 use quote::ToTokens;
-use syn::{Ident, Visibility};
+use syn::{Visibility};
 use quote::TokenStreamExt;
 use quote::quote;
 
@@ -9,7 +9,7 @@ use crate::input::{Input, TokenStreamIterator};
 pub fn derive(input: &Input) -> TokenStream {
     let name = &input.name;
     let visibility = &input.visibility;
-    let detail_mod = Ident::new(&format!("__detail_iter_{}", name.to_string().to_lowercase()), Span::call_site());
+    let detail_mod = Input::detail_mod_name(&input.name);
     let vec_name = &input.vec_name();
     let slice_name = Input::slice_name(name);
     let slice_mut_name = Input::slice_mut_name(&input.name);
@@ -26,8 +26,9 @@ pub fn derive(input: &Input) -> TokenStream {
     let iter_type = input.iter_fields().map(
         |(_, field_type, is_nested)| {
             if is_nested {
+                let field_detail_mod = Input::detail_mod_name(field_type);
                 quote! {
-                    <#field_type as soa_derive::SoAIter<'a>>::Iter
+                    #field_detail_mod::Iter<'a>
                 }
             }
             else {
@@ -46,8 +47,9 @@ pub fn derive(input: &Input) -> TokenStream {
     let iter_mut_type = input.iter_fields().map(
         |(_, field_type, is_nested)| {
             if is_nested {
+                let field_detail_mod = Input::detail_mod_name(field_type);
                 quote! {
-                    <#field_type as soa_derive::SoAIter<'a>>::IterMut
+                    #field_detail_mod::IterMut<'a>
                 }
             }
             else {
@@ -261,12 +263,6 @@ pub fn derive(input: &Input) -> TokenStream {
                     IterMut(#create_mut_into_iter)
                 }
             }
-
-            impl<'a> soa_derive::SoAIter<'a> for #name {
-                type Iter = Iter<'a>;
-                type IterMut = IterMut<'a>;
-            }
-
 
         }
     };
